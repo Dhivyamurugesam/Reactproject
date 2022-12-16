@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, TextInput,Text, TouchableOpacity, View, Dimensions } from "react-native";
 
 const { height, width } = Dimensions.get('window');
@@ -9,10 +9,14 @@ const CreateuserScreen = ({navigation}) => {
     const [email,setEmail]= useState({});
     const [gender,setGender]= useState({});
     const [status,setStatus]= useState({});
-console.log('jdfhkjdghdfjkh',name);
+console.log('name',name);
+
+
+
+
     const requestOptions = {
         method: 'POST',
-        headers: { "Accept":"application/json",'Content-Type': 'application/json','Authorization': 'Bearer 29b6c0666271758735bb5f8835ad9bfd8d05ee1975f53fbf43f292d5f87b394e',},
+        headers: { "Accept":"application/json",'Content-Type': 'application/json','Authorization': 'Bearer 6cde897f09fb485e6dab9c491f27f619d03c35b7ffca8708e69c46861eb5b5c6',},
         body: JSON.stringify({"name":name, "gender":gender, "email":email, "status":status})
     };
   
@@ -21,6 +25,7 @@ console.log('jdfhkjdghdfjkh',name);
             await fetch(
                 'https://gorest.co.in/public/v2/users', requestOptions)
                 .then(response => {
+
                     response.json()
                         .then(data => {
                             console.log(data,"data")
@@ -32,6 +37,7 @@ console.log('jdfhkjdghdfjkh',name);
             console.error(error);
         }
     }
+    
     return(
         <View>
             <View style={styles.authorText}>
@@ -125,3 +131,4 @@ const styles=StyleSheet.create({
         fontWeight:'600'
     }
 })
+
