@@ -13,10 +13,6 @@ const Authordetails = ({ navigation }) => {
     const [titlevalue, setTitlevalue] = useState([]);
     const [isModalVisible, setModalVisible] = useState(false);
     const [nameEdittext, setNameedittext] = useState(false);
-    const [name, setName] = useState({});
-    const [email, setEmail] = useState({});
-    const [gender, setGender] = useState({});
-    const [status, setStatus] = useState({});
 
     const dataid = route.params?.Id;
 
@@ -27,10 +23,16 @@ const Authordetails = ({ navigation }) => {
     const viewmodal = () => {
         setNameedittext(!nameEdittext);
     };
-    const getvalue = () =>{
+
+    useEffect(() => {
+        getvalue();
+        gettitle();
+    }, [])
+
+    const getvalue = () => {
         fetch(`https://gorest.co.in/public/v2/users?id=${dataid}`, {
             method: 'GET',
-            headers: { "Accept": "application/json", 'Content-Type': 'application/json', 'Authorization': 'Bearer 6cde897f09fb485e6dab9c491f27f619d03c35b7ffca8708e69c46861eb5b5c6', },
+            headers: { "Accept": "application/json", 'Content-Type': 'application/json', 'Authorization': 'Bearer b55dae3b7f03b68edcbcd7eb32ee00e3912361145f4d99e8dbccce7200ac4e1d', },
         }
         )
             .then(response => response.json())
@@ -39,22 +41,14 @@ const Authordetails = ({ navigation }) => {
                 setListvalue(responseJson);
             })
             .catch(error => console.log(error));
-
     }
 
-    
-
-    useEffect(() => {
-        getvalue()
-    }, [])
-    useEffect(() => {
-
+    const gettitle=() => {
         fetch(
             `https://gorest.co.in/public/v2/posts?user_id=${dataid}`,
             {
-
                 method: 'GET',
-                headers: { "Accept": "application/json", 'Content-Type': 'application/json', 'Authorization': 'Bearer 6cde897f09fb485e6dab9c491f27f619d03c35b7ffca8708e69c46861eb5b5c6', },
+                headers: { "Accept": "application/json", 'Content-Type': 'application/json', 'Authorization': 'Bearer b55dae3b7f03b68edcbcd7eb32ee00e3912361145f4d99e8dbccce7200ac4e1d', },
             },
         )
             .then(response => response.json())
@@ -62,37 +56,73 @@ const Authordetails = ({ navigation }) => {
                 setTitlevalue(responseJson);
             })
             .catch(error => console.log(error));
+    };
 
-    }, []);
-
-
-    
-    const editExample = async () => {
-        let user={name,email,gender,status,dataid}
-        console.log("45445",user)
+    const editExample = async () => {    
         try {
             await fetch(
-                `https://gorest.co.in/public/v2/users/${dataid}`, 
+                `https://gorest.co.in/public/v2/users/${dataid}`,
                 {
                     method: 'PUT',
-                    headers: { "Accept": "application/json", 'Content-Type': 'application/json', 'Authorization': 'Bearer 6cde897f09fb485e6dab9c491f27f619d03c35b7ffca8708e69c46861eb5b5c6', },
+                    headers: { "Accept": "application/json", 'Content-Type': 'application/json', 'Authorization': 'Bearer b55dae3b7f03b68edcbcd7eb32ee00e3912361145f4d99e8dbccce7200ac4e1d', },
                     body: JSON.stringify(user)
                 })
                 .then(response => {
                     setNameedittext(!nameEdittext);
                     getvalue()
                 })
-                   
-
-                
         }
         catch (error) {
             console.error(error);
         }
     }
 
+    // render author details
+    const renderlistvalue = ({ item }) => {
+        return (
+            <View>
+                <View style={{ marginTop: 5, flexDirection: 'row' }}>
+                    <Text style={styles.texttitle}>Id </Text>
+                    <Text style={styles.colone}>: </Text>
+                    <Text style={{ fontSize: 18 }}>{item.id}</Text>
+                </View>
+                <View style={{ marginTop: 5, flexDirection: 'row' }}>
+                    <Text style={styles.texttitle}>Name  </Text>
+                    <Text style={{ color: 'black', fontSize: 20, fontWeight: '800', marginLeft: 20 }}>: </Text>
+                    <Text style={{ fontSize: 18 }}>{item.name}</Text>
+                </View>
+                <View style={{ marginTop: 5, flexDirection: 'row' }}>
+                    <Text style={styles.texttitle}>Email   </Text>
+                    <Text style={{ color: 'black', fontSize: 20, fontWeight: '800', marginLeft: 20 }}>: </Text>
+                    <Text style={{ fontSize: 18 }}>{item.email}</Text>
+                </View>
+                <View style={{ marginTop: 5, flexDirection: 'row' }}>
+                    <Text style={styles.texttitle}>Gender </Text>
+                    <Text style={{ color: 'black', fontSize: 20, fontWeight: '800', marginLeft: 10 }}>: </Text>
+                    <Text style={{ fontSize: 18 }}>{item.gender}</Text>
+                </View>
+                <View style={{ flexDirection: 'row', marginTop: 5 }}>
+                    <Text style={styles.texttitle}>Status</Text>
+                    <Text style={{ color: 'black', fontSize: 20, fontWeight: '800', marginLeft: 20 }}>: </Text>
+                    <Text style={{ fontSize: 18 }}>{item.status}</Text>
+                </View>
+            </View>
+        )
+    }
 
+    //render book details
+    const rendertitlevalue = ({ item }) => {
+        return (
+            <View>
+                <Text style={styles.texttitle}>Title:</Text>
+                <Text style={styles.textbody}>{item.title}</Text>
+                <Text style={styles.texttitle}>Body:</Text>
+                <Text style={styles.textbody}>{item.body}</Text>
+            </View>
+        )
+    }
 
+    //intial render
     return (
         <View style={{ backgroundColor: 'white', flex: 1 }}>
             <View style={{ flexDirection: 'row' }}>
@@ -107,104 +137,49 @@ const Authordetails = ({ navigation }) => {
                     <View style={styles.modalText}>
                         <Text on onPress={viewmodal} style={styles.editText}>Edit</Text>
                         <Text onPress={toggleModal} style={styles.editText}>View</Text>
-                    </View>
-                )}
+                    </View>)}
             </View>
             <FlatList data={listvalue}
-                renderItem={({ item }) => (
-                    console.log(item.title, "jghdjfghdg"),
-                    <View>
-                        <View style={{ marginTop: 5, flexDirection: 'row' }}>
-                            <Text style={styles.texttitle}>Id </Text>
-                            <Text style={styles.colone}>: </Text>
-                            <Text style={{ fontSize: 18 }}>{item.id}</Text>
-                        </View>
-                        <View style={{ marginTop: 5, flexDirection: 'row' }}>
-                            <Text style={styles.texttitle}>Name  </Text>
-                            <Text style={{ color: 'black', fontSize: 20, fontWeight: '800', marginLeft: 20 }}>: </Text>
-                            <Text style={{ fontSize: 18 }}>{item.name}</Text>
-                        </View>
-                        <View style={{ marginTop: 5, flexDirection: 'row' }}>
-                            <Text style={styles.texttitle}>Email   </Text>
-                            <Text style={{ color: 'black', fontSize: 20, fontWeight: '800', marginLeft: 20 }}>: </Text>
-                            <Text style={{ fontSize: 18 }}>{item.email}</Text>
-                        </View>
-                        <View style={{ marginTop: 5, flexDirection: 'row' }}>
-                            <Text style={styles.texttitle}>Gender </Text>
-                            <Text style={{ color: 'black', fontSize: 20, fontWeight: '800', marginLeft: 10 }}>: </Text>
-                            <Text style={{ fontSize: 18 }}>{item.gender}</Text>
-                        </View>
-                        <View style={{ flexDirection: 'row', marginTop: 5 }}>
-                            <Text style={styles.texttitle}>Status</Text>
-                            <Text style={{ color: 'black', fontSize: 20, fontWeight: '800', marginLeft: 20 }}>: </Text>
-                            <Text style={{ fontSize: 18 }}>{item.status}</Text>
-                        </View>
-                    </View>
-                )}>
+                renderItem={renderlistvalue}>
             </FlatList>
+
             <FlatList data={titlevalue}
-                renderItem={({ item }) => (
-                    console.log(item.title, "jghdjfghdg"),
-                    <View>
-
-
-                        <Text style={styles.texttitle}>Title:</Text>
-                        <Text style={styles.textbody}>{item.title}</Text>
-                        <Text style={styles.texttitle}>Body:</Text>
-                        <Text style={styles.textbody}>{item.body}</Text>
-                    </View>
-                )}>
-
+                renderItem={rendertitlevalue}>
             </FlatList>
             <Modal isVisible={nameEdittext} style={{ marginHorizontal: 0 }}>
                 <FlatList data={listvalue}
                     renderItem={({ item }) => (
                         <View style={styles.mobileText}>
-
-
                             <TouchableOpacity onPress={viewmodal}>
                                 <Icon name="close" size={20} style={styles.close}></Icon>
                             </TouchableOpacity>
-
                             <Text style={styles.AuthText}>Edit your Details </Text>
-
                             <View style={styles.viewText}>
                                 <TextInput style={styles.inputText}
                                     placeholder="Enter your user Name"
                                     placeholderTextColor="gray"
-        
                                     onChangeText={(text) => setName(text)}>{item.name}</TextInput>
-
                                 <TextInput style={styles.inputText}
                                     placeholder="Enter your email"
                                     placeholderTextColor="gray"
-
                                     onChangeText={(text) => setEmail(text)}>{item.email}</TextInput>
                                 <TextInput style={styles.inputText}
                                     placeholder="Gender"
                                     placeholderTextColor="gray"
-
                                     onChangeText={(text) => setGender(text)} >{item.gender}</TextInput>
                                 <TextInput style={styles.inputText}
                                     placeholder="Status"
                                     placeholderTextColor="gray"
-
                                     onChangeText={(text) => setStatus(text)} >{item.status}</TextInput>
                                 <TouchableOpacity style={styles.savebox} onPress={editExample}>
                                     <Text style={styles.saveText}>Save</Text>
                                 </TouchableOpacity>
                             </View>
-
                         </View>
                     )}>
-
                 </FlatList>
-
             </Modal>
-
-
         </View >
-
     );
 };
 export default Authordetails;
@@ -238,9 +213,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         marginTop: 60,
         marginEnd: 20
-
     },
-
     deleteText: {
         position: 'absolute',
         right: 8,
@@ -285,7 +258,6 @@ const styles = StyleSheet.create({
         marginRight: 20,
         marginTop: 10
     },
-
     inputText: {
         height: 50,
         width: 350,

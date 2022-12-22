@@ -1,94 +1,122 @@
-
 import React, { useEffect, useState } from "react";
-import { FlatList, Text, View, Image, TouchableOpacity, StyleSheet, Dimensions, RecyclerViewBackedScrollView } from "react-native";
+import { FlatList, Text, View, Image, TouchableOpacity, StyleSheet, Dimensions, ScrollView, SectionList } from "react-native";
 import Modal from "react-native-modal";
 import Icon from "react-native-vector-icons/FontAwesome5";
-import Avatar from 'react-avatar';
+import UserAvatar from 'react-native-user-avatar';
+import DropShadow from "react-native-drop-shadow";
 
-const { height, width } = Dimensions.get('window');
 const AuthorScreen = ({ navigation }) => {
     const [listvalue, setListvalue] = useState([]);
     const [pop, setPop] = useState('');
     const [isModalVisible, setModalVisible] = useState(false);
 
-
-    const toggleModal = (i,e) => {
-        console.log("piop",i)
-
-        setModalVisible(!isModalVisible); 
+    const toggleModal = (i, e) => {
+        setModalVisible(!isModalVisible);
         setPop(i);
     };
 
-console.log(pop,"new")
-
-
     useEffect(() => {
         getapi();
+        deleteExample();
     }, []);
-    // const requestOptions = {
-    //     method: 'GET',
-    //     headers: { "Accept":"application/json",'Content-Type': 'application/json','Authorization': 'Bearer 29b6c0666271758735bb5f8835ad9bfd8d05ee1975f53fbf43f292d5f87b394e',},
-    // };
+
     const getapi = () => {
-        fetch(`https://gorest.co.in/public/v2/users`, {
-            method: 'GET',
-            headers: { "Accept": "application/json", 'Content-Type': 'application/json', 'Authorization': 'Bearer 6cde897f09fb485e6dab9c491f27f619d03c35b7ffca8708e69c46861eb5b5c6', },
-        }
+        fetch(`https://gorest.co.in/public/v2/users`,
+            {
+                method: 'GET',
+                headers: { "Accept": "application/json", 'Content-Type': 'application/json', 'Authorization': 'Bearer b55dae3b7f03b68edcbcd7eb32ee00e3912361145f4d99e8dbccce7200ac4e1d', },
+            }
         )
             .then(response => response.json())
             .then(responseJson => {
-                console.log(responseJson,"hiiiiiii");
-                setListvalue(responseJson);
+                console.log(responseJson, "data===============>");
+                responseJson.map((item) => {
+                    fetch(`https://gorest.co.in/public/v2/posts?user_id=${item.id}`,
+                        {
+                            method: 'GET',
+                            headers: { "Accept": "application/json", 'Content-Type': 'application/json', 'Authorization': 'Bearer b55dae3b7f03b68edcbcd7eb32ee00e3912361145f4d99e8dbccce7200ac4e1d', },
+                        })
+                        .then(res => res.json())
+                        .then(resJson => {
+                            item.title = resJson[0].title;
+                            item.body = resJson[0].body;
+                            setListvalue(responseJson);
+                            console.log(responseJson, "kkkkkk============>");
+                        })
+                })
             })
-            .catch(error => console.log(error));
-    }
-    const requestOptions = {
-        method: 'DELETE',
-        headers: { "Accept": "application/json", 'Content-Type': 'application/json', 'Authorization': 'Bearer 6cde897f09fb485e6dab9c491f27f619d03c35b7ffca8708e69c46861eb5b5c6', },
-        body: JSON.stringify()
     };
+
     const deleteExample = async () => {
-        console.log(pop,"45445")
         try {
             await fetch(
-                `https://gorest.co.in/public/v2/users/${pop}`, requestOptions)
+                `https://gorest.co.in/public/v2/users/${pop}`, {
+                method: 'DELETE',
+                headers: { "Accept": "application/json", 'Content-Type': 'application/json', 'Authorization': 'Bearer b55dae3b7f03b68edcbcd7eb32ee00e3912361145f4d99e8dbccce7200ac4e1d', },
+                body: JSON.stringify()
+            })
                 .then(response => {
                     response.json()
                     getapi();
-                    console.log(response.json(),"hfgfjksgdfjksg")
+                    console.log(response.json(),)
                 })
         }
         catch (error) {
             console.error(error);
         }
     }
-    const selectid=(id,e)=>{
+
+    const selectid = (id, e) => {
         let Id = id;
-        console.log('id>>>>>>>>>>>>>>>>>>>>', id);
         navigation.navigate('Authordetails', {
             Id,
         });
     }
-    // console.log('list---->', listvalue);
 
-    // const deleteapis = () => {
-    //     console.log("delete")
-    //     //  alert(item.id)
-    //     // var body={id:item.id}
-    //      console.log(dataid, "5655555");
-    //     fetch(
-    //         `https://gorest.co.in/public/v2/users/${dataid}`,
-    //         {
-    //             method: 'DELETE',
-    //             headers: { "Accept":"application/json",'Content-Type': 'application/json','Authorization': 'Bearer 29b6c0666271758735bb5f8835ad9bfd8d05ee1975f53fbf43f292d5f87b394e',},
-    //         },
-    //     )
-    //         .then(response => response.json())
+    const firstname = (name, e) => {
+        let lastname = name;
+        lastname.includes(' .', [0])
+    }
 
-    //         .catch(error => console.log(error));
+    //render values
+    const rendervalues = ({ item, index }) => {
+        return (
+            <View style={{ flex: 1, marginVertical: 5, marginLeft: 10 }} key={index}>
+                <View style={{ flexDirection: 'row' }}>
+                    <View style={{ flexDirection: 'row' }}>
+                        <DropShadow style={{ shadowColor: 'black', shadowRadius: 4, shadowOpacity: 1, shadowOffset: { width: 0, height: 0 } }}>
+                            <UserAvatar style={{ marginTop: 5 }} size={48} name={item.name} />
+                        </DropShadow>
+                        <View style={{ flexDirection: 'column' }}>
+                            <TouchableOpacity
+                                onLongPress={() => toggleModal(item.id)}
+                                onPress={() => selectid(item.id)} >
+                                <View style={{ flexDirection: 'row' }}>
+                                    <Text style={styles.firstname}>{firstname.call = item.name.split(' ')[0]} </Text>
+                                    <Text style={styles.lastname}>{item.name.split(' ')[1]} </Text>
+                                </View>
+                                <View style={styles.titletext}>
+                                    <Text>Title :</Text>
+                                    <Text numberOfLines={1} style={{ color: 'gray' }}>{item.title ? item.title : "Nil"}</Text>
+                                </View>
+                                <View style={styles.titletext}>
+                                    <Text>Des  :</Text>
+                                    <Text numberOfLines={1} style={{ color: 'gray' }}>{item.body ? item.body : "Nil"}</Text>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                    <TouchableOpacity style={{ position: 'absolute', right: 15 }} onLongPress={() => toggleModal(item.id)}
+                        onPress={() => selectid(item.id)}>
+                        <Icon style={styles.rightarrow} name="angle-right" size={22}></Icon>
+                    </TouchableOpacity>
+                </View>
+                <View style={{ width: 300, borderWidth: 0.5, borderColor: '#C1BBBB', marginLeft: 70 }}></View>
+            </View>
+        )
+    }
 
-    // }
-
+    //initial render
     return (
         <View style={{ backgroundColor: 'white', flex: 1 }}>
             <View style={styles.authorText}>
@@ -98,46 +126,15 @@ console.log(pop,"new")
                 </TouchableOpacity>
             </View>
             <FlatList data={listvalue}
-                renderItem={({ item, index }) => (
-                    console.log(item.id,"jghdjfghdg"),
-                    <View style={{ flex: 1, marginVertical: 10 }} key={index}>
-                        <View style={{ flexDirection: 'row' }}>
-                            <View style={{ flexDirection: 'row' }}>
-                                {/* {listvalue?.map((element,index)=>{
-                                return(
-                                    <Avatar key={index} name={item.name} maxInitials={2}></Avatar>
-                                )
-                            })} */}
-
-                                <Image style={{ height: 50, width: 50, borderRadius: 50, marginLeft: 20 }} source={require('../../assets/images/author.png')}></Image>
-                                <TouchableOpacity 
-                                    onLongPress={()=>toggleModal(item.id)}
-                                    onPress={() => selectid(item.id)}
-                                       >
-                                    <Text style={styles.listText}>{item.name}</Text>
-
-                                </TouchableOpacity>
-                            </View>
-                            <TouchableOpacity style={{ position: 'absolute', right: 15 }} onPress={() => navigation.navigate('Authordetails')}>
-                                <Icon style={styles.rightarrow} name="angle-right" size={22}></Icon>
-                            </TouchableOpacity>
-                        </View>
-                        <View style={{ height: 1, width: 280, borderWidth: 1, borderColor: '#C1BBBB', marginLeft: 70 }}></View>
-                    </View>
-    )}>
-            </FlatList>
-
+                renderItem={rendervalues}>
+            </FlatList >
             <Modal isVisible={isModalVisible}
                 coverScreen={false}
                 hasBackdrop={true}
-
                 backdropOpacity={0.10}
                 onBackdropPress={() => { setModalVisible(false) }}
-
                 animationIn='zoomIn'
-                animationOut='zoomOut'
-            >
-
+                animationOut='zoomOut'>
                 <View style={styles.modalView}>
                     <TouchableOpacity>
                         <Text style={styles.editText}>Select</Text>
@@ -149,13 +146,8 @@ console.log(pop,"new")
                         <Text style={styles.editText}>Delete</Text>
                     </TouchableOpacity>
                 </View>
-
             </Modal>
-
-
-
         </View>
-
     );
 };
 
@@ -168,7 +160,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingHorizontal: 20,
         paddingVertical: 35,
-
     },
     AuthText: {
         fontSize: 20,
@@ -182,15 +173,17 @@ const styles = StyleSheet.create({
     listalgin: {
         flexDirection: 'row',
         paddingHorizontal: 20,
-        // justifyContent: 'space-between'
     },
-
-    listText: {
-        marginTop: 10,
+    firstname: {
         fontSize: 18,
         fontWeight: '800',
-        marginLeft: 10
-
+        marginLeft: 20,
+        marginBottom: 5
+    },
+    lastname: {
+        fontSize: 18,
+        fontWeight: '800',
+        color: 'blue'
     },
     rightarrow: {
         marginTop: 11,
@@ -210,5 +203,10 @@ const styles = StyleSheet.create({
         marginHorizontal: 20,
         marginVertical: 5
     },
-
+    titletext: {
+        flexDirection: 'row',
+        width: 200,
+        marginHorizontal: 20,
+        marginBottom: 5
+    }
 })
